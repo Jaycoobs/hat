@@ -2,6 +2,7 @@ import json
 import random
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 
 hats = {}
 
@@ -31,6 +32,10 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     saveHats(hats)
+
+@app.get("/", response_class=RedirectResponse)
+async def redirect():
+    return "/web/page.html"
 
 @api.post("/create-hat")
 def create_hat(name: str = Body(...)):
