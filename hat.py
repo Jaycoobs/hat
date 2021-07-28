@@ -1,0 +1,58 @@
+import json
+import random
+from fastapi import Body, FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+
+hats = {}
+
+app = FastAPI()
+api = FastAPI();
+
+app.mount("/web", StaticFiles(directory="web"), name="static")
+app.mount("/api", api)
+
+def loadHats():
+    try:
+        with open("hats.json") as f:
+            hats = json.loads(f.read())
+        return hats
+    except FileNotFoundError:
+        return {}
+
+def saveHats(hats):
+    with open("hats.json", "w") as f:
+        f.write(json.dumps(hats))
+
+@app.on_event("startup")
+async def startup_event():
+    global hats
+    hats = loadHats()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    saveHats(hats)
+
+@api.post("/create-hat")
+def create_hat(name: str = Body(...)):
+    if (name in hats):
+        raise HTTPException(status_code=409, detail=f"Already a hat called {name}");
+    hats[name] = [];
+
+@api.get("/hats")
+def get_hats():
+    return list(hats.keys())
+
+@api.post("/submit")
+def submit(hat: str = Body(...), entry: str = Body(...)):
+    if (not hat in hats):
+        raise HTTPException(status_code=404, detail=f"No hat named {hat}")
+    hats[hat].append(entry)
+
+@api.get("/draw/{hat}")
+def draw(hat: str):
+    hat = hats[hat]
+    if (len(hat) == 0):
+        raise HTTPException(status_code=400, detail="This hat is empty!")
+    entry = random.choice(hat)
+    hat.remove(entry)
+    return { "entry": entry }

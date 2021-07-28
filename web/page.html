@@ -1,0 +1,36 @@
+<HTML>
+
+	<head>
+		<title>HATS</title>
+	</head>
+
+	<body onload="request_hats()">
+		<link rel="stylesheet" href="style.css">
+
+		<div id="hat-selection" class="center">
+			<h2>PICK A HAT</H2>
+			<div id="new-hat-button" class="button">NEW HAT</div>
+			<ul id="hat-list" class="list">
+			</ul>
+		</div>
+
+		<div id="new-hat-menu" class="hidden center">
+			NAME: <input id="new-hat-name" type="text"/>
+			<div id="create-hat-button" class="button">CREATE</div>
+			<div class="back button">BACK</div>
+			<p id="create-error-text"></p>
+		</div>
+
+		<div id="action-selection" class="center hidden">
+			<h2 id="selected-hat"></h2>
+			NEW ENTRY: <input id="submit-text" type="text"/>
+			<div id="submit-button" class="button">SUBMIT</div>
+			<div id="draw-button" class="button">DRAW</div>
+			<div class="back button">BACK</div>
+			<p id="submit-error-text"></p>
+		</div>
+
+		<script src="script.js"></script>
+	</body>
+
+</HTML>
