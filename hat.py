@@ -1,10 +1,13 @@
 import json
 import random
+import sched
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
 hats = {}
+nextSaveEvent = None
+scheduler = sched.scheduler()
 
 app = FastAPI()
 api = FastAPI();
@@ -24,10 +27,19 @@ def saveHats(hats):
     with open("hats.json", "w") as f:
         f.write(json.dumps(hats))
 
+def saveHatsAndSchedule(hats, s):
+    global nextSaveEvent
+    print("Saving hats.")
+    saveHats(hats)
+    nextSaveEvent = s.enter(3600, 1, saveHatsAndSchedule, (hats, s))
+    return nextSaveEvent
+
 @app.on_event("startup")
 async def startup_event():
     global hats
+    global nextSaveEvent
     hats = loadHats()
+    nextSaveEvent = saveHatsAndSchedule(hats, scheduler)
 
 @app.on_event("shutdown")
 async def shutdown_event():
